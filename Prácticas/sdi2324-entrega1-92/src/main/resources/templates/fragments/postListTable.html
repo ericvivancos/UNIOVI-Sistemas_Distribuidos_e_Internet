@@ -1,0 +1,44 @@
+﻿<table class="table table-hover" th:fragment="postListTable" id="postListTable" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+    <thead>
+    <tr>
+        <th th:text="#{posts.date}">Fecha</th>
+        <th th:text="#{posts.title}">Titulo</th>
+        <th th:text="#{posts.content}">Contenido</th>
+        <th  th:text="#{posts.email}">Email</th>
+        <th th:text="#{posts.status}">Estado</th>
+        <th th:text="#{posts.recommendations}">Recomendaciones</th>
+
+        <th sec:authorize="hasRole('ADMIN')" th:text="#{posts.edit}">Modificar</th> <!-- Columna para acciones -->
+
+
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="post : ${postsList}">
+        <div th:if="${#lists.isEmpty(postsList)}" th:text="#{post.table.empty}" > No post </div>
+
+        <td th:text="${post.creationDate}">Fecha de creacion</td>
+        <td th:text="${post.title}">Titulo</td>
+        <td th:text="${post.content}">Contenido</td>
+        <td  th:text="${post.owner.email}">Email</td>
+        <td  th:text="${post.status}">Estado</td>
+        <td  th:text="${post.recommendations}">0</td>
+
+
+        <td th:if="${friendsView}">
+            <a th:if="${not recommendedPosts.contains(post)}"th:href="${'/recommendation/' + post.id}" th:text="#{posts.recomendation}">Aceptar</a>
+        </td>
+        <td>
+            <!-- Verifica si la publicación tiene una foto adjunta -->
+            <img th:if="${post.photoUrl != null}" th:src="${post.photoUrl}" th:alt="#{Error.loadImage}" style="max-width: 100px; max-height: 100px;">
+            <!-- Si la publicación no tiene foto adjunta, muestra una imagen por defecto -->
+            <img th:unless="${post.photoUrl != null}" th:src="@{/uploads/default.png}" th:alt="#{Error.loadImage}" style="max-width: 100px; max-height: 100px;">
+        </td>
+
+        <td>
+            <!-- Agrega un botón o enlace para modificar el estado -->
+            <a th:text="#{post.modify.status}"  sec:authorize="hasRole('ADMIN')" th:href="@{'/post/edit/' + ${post.getId()}}" class="btn btn-primary" >Modificar Estado</a>
+        </td>
+    </tr>
+    </tbody>
+</table>

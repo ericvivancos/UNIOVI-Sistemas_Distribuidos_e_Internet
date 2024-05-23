@@ -1,0 +1,29 @@
+<table class="table table-hover" th:fragment="friendsTable" id="friendsTable">
+    <thead>
+    <tr>
+        <th scope="col" th:text="#{email}">Email del Amigo</th>
+        <th scope="col" th:text="#{nombre}">Nombre</th>
+        <th scope="col" th:text="#{apellido}">Apellidos</th>
+        <th scope="col" th:text="#{fecha}">Fecha de Amistad</th>
+        <th scope="col" th:text="#{last.publication}">ultima publicacion
+        </th>
+
+        <th scope="col"></th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="friendship : ${friendsList}">
+        <td th:text="${friendship.friend.email}">Email</td>
+        <td><a class="name" th:href="${'/post/friendList/' + friendship.friend.id}" th:text="${friendship.friend.name}"></a></td>
+        <td th:text="${friendship.friend.lastName}">Apellidos</td>
+        <td th:text="${friendship.friendshipDate}">Fecha</td>
+        <td>
+            <span th:if="${friendship.friend.lastPost != null}" th:text="${friendship.friend.lastPost.title}">Título del último post</span>
+            <span th:unless="${friendship.friend.lastPost != null}" th:text="#{sin.publicaciones}">Sin publicaciones</span>
+        </td>
+
+    </tr>
+    </tbody>
+</table>

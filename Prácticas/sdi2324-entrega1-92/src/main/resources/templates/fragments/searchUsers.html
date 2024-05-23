@@ -1,0 +1,12 @@
+<form class="form-inline" action="/user/list">
+    <div class="form-group">
+        <input name="searchText" type="text" class="form-control" size="50"
+               th:if="${#session.getAttribute('searchText') != null and #session.getAttribute('searchText') ne ''}"
+               th:value="${#session.getAttribute('searchText')}">
+        <!-- Si no está presente, establece un valor por defecto en el placeholder -->
+        <input name="searchText" type="text" class="form-control" size="50"
+               th:unless="${#session.getAttribute('searchText') != null}"
+               th:placeholder="#{search.placeholder}">
+    </div>
+    <button type="submit" class="btn btn-primary" th:text="#{search.boton}">Buscar</button>
+</form>

@@ -1,0 +1,28 @@
+﻿<table class="table table-hover" th:fragment="friendRequestTable" id="friendRequestTable">
+    <thead>
+    <tr>
+        <th scope="col" th:text="#{friendRequest.sender.name}">Nombre del Remitente</th>
+        <th scope="col" th:text="#{login.email}">Email del Remitente</th>
+        <th scope="col" th:text="#{friendRequest.date}">Fecha de Solicitud</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="friendRequest : ${friendRequestList}">
+        <td th:text="${friendRequest.sender.FullName}">Usuario </td>
+        <td th:text="${friendRequest.sender.email}">Email </td>
+
+        <td th:text="${friendRequest.fechaFormateada}">2022-03-03</td>
+
+       <!-- <td><a th:href="${'/friendRequest/details/' + friendRequest.id}">Detalles</a></td>-->
+        <td>
+            <a class="text-decoration-none text-info" th:href="${'/friendRequest/accept/' + friendRequest.id}">
+                <i class="fas fa-check-circle"></i> <!-- Icono Font Awesome -->
+                <span th:text="#{friendRequest.Accept}">Aceptar</span>
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>

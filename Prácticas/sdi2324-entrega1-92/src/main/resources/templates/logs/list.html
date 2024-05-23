@@ -1,0 +1,92 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head th:replace="fragments/head"></head>
+
+<body>
+
+<nav th:replace="fragments/nav"></nav>
+
+<div class="container mt-4" id="main-container">
+
+    <h2>LOGS</h2>
+    <p th:text="#{logs.welcome}" > </p>
+
+    <button type="button" id="updateButton" class="btn btn-primary" th:text="#{update}">Actualizar</button>
+    <button onclick="deleteLogsByType()" type="button" id="deleteButton" class="btn btn-danger"
+            th:text="#{user.delete}">Eliminar</button>
+
+    <select id="typesCombo" class="form-select" aria-label="LogType">
+
+        <option value="PET">PET</option>
+        <option value="LOGIN_EX">LOGIN_EX</option>
+        <option value="LOGIN_ERR">LOGIN_ERR</option>
+        <option value="ALTA">ALTA</option>
+        <option value="LOGOUT">LOGOUT</option>
+        <option value="ALL" selected th:text="#{logs.allTypes.message}">ALL TYPES</option>
+
+    </select>
+
+    <script th:inline="javascript"> /*<![CDATA[*/
+
+
+    $("#updateButton").click(function () {
+        var urlUpdate = '/logs/list/update';
+
+        var select = document.getElementById('typesCombo');
+        var value = select.options[select.selectedIndex].value
+
+        var strType = "?logType=" + value.toString();
+
+
+        $("#tableLogs").load(urlUpdate+strType);
+    });
+
+    function loadAfterDelete(logId) {
+        var select = document.getElementById('typesCombo');
+        var value = select.options[select.selectedIndex].value
+
+        var strType = "?logType=" + value.toString();
+        $("#tableLogs").load("/log/delete/"+logId+strType);
+    }
+
+
+    /*]]>*/ </script>
+
+
+
+
+    <div class="table-responsive" th:fragment="tableLogs" id="tableLogs">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col" >ID</th>
+                <th scope="col" th:text="#{logs.type}">Type</th>
+                <th scope="col" th:text="#{logs.description}">Descripcion</th>
+                <th scope="col" th:text="#{logs.date}"> Fecha</th>
+                <th scope="col" th:text="#{logs.remove}">Eliminar</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="log : ${logsList}">
+                <td scope="row" th:text="${log.getId()}"> 1</td>
+                <td th:text="${log.getLogType()}"> Type</td>
+                <td th:text="${log.getDescription()}">10</td>
+                <td th:text="${log.stampToDate()}">Fecha</td>
+                <td><button class="btn btn-primary" id="delete" onclick="loadAfterDelete('${log.getId()}')"  sec:authorize="hasRole('ROLE_ADMIN')"
+
+                            th:onclick="|loadAfterDelete('${log.getId()}')|"
+                            th:text="#{logs.remove}" >eliminar</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${#lists.isEmpty(logsList)}"> No Logs </div>
+</div>
+
+<footer th:replace="fragments/footer"></footer>
+
+</body>
+</html>

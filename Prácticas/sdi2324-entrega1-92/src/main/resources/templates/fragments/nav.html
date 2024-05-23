@@ -1,0 +1,91 @@
+    <!-- nav.html -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-info" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+        <a class="navbar-brand" href="#"></a>
+        <img src="/images/student-48.png" alt="logo"/>
+        <h1 class="m-2 text-white font-weight-bold mr-5">Twenti</h1>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mynavbar"
+                aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav mr-auto" sec:authorize="isAuthenticated()">
+                <li class="nav-item ">
+                    <a class="nav-link" href="/home"><i style="font-size: 1.3rem;" class="mr-2 fas fa-home "></i>Home<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false" th:text="#{nav.friendship}"> <i class="fas fa-user-friends"></i> Gestión de Amitades
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/friendRequest/list" th:text="#{nav.solicitudes}" id="friendRequest"><i class="fas fa-user-plus"></i>Ver solicitudes </a>
+                        <a class="dropdown-item" href="/friends/list" th:text="#{nav.friendship.see}" id="friendsList"><i class="fas fa-users"></i>Ver Amigos</a>
+
+                    </div>
+
+                </li>
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                       th:text="#{nav.users}"> <i class="fas fa-users-cog"></i>
+                        Gestión de Usuarios
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" id="verUsuariosOption" href="/user/list" th:text="#{nav.users.see}"> <i class="fas fa-user"></i>Ver usuarios</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()" >
+                    <a class="nav-link dropdown-toggle" href="#" id="postDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false" th:text="#{nav.posts}" ><i class="fas fa-newspaper"></i> Gestión de publicaciones
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown" >
+                        <a class="dropdown-item" id="postAdd"  href="/post/add" th:text="#{nav.posts.create}"><i class="fas fa-plus"></i>Crear publicación</a>
+                        <a class="dropdown-item" id="ownedPosts" href="/post/list" th:text="#{nav.posts.see}"><i class="fas fa-list"></i>Ver mis publicaciones</a>
+                        <a class="dropdown-item" id="listPostAll" href="/post/listAll" th:text="#{nav.posts.seeAll}" sec:authorize="hasRole('ROLE_ADMIN')"><i class="fas fa-globe"></i>Ver todas publicaciones</a>
+                    </div>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link" href="/logs/list" sec:authorize="hasRole('ROLE_ADMIN')" th:text="#{msg.log.title}"><i class="fas fa-file-alt"></i><span
+                            class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+            <ul class="navbar-nav justify-content-end">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="btnLanguage" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <span th:text="#{language.change}"></span>
+                    </a>
+                    <div id="languageDropdownMenuButton" class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" id="btnEnglish" value="EN">
+                            <img th:src="@{/images/if_uk_flag.png}" style="border: 0; float: left; margin-right: 15px"/>
+                            <span th:text="#{language.en}">Inglés</span>
+                        </a>
+                        <a class="dropdown-item" id="btnSpanish" value="ES">
+                            <img th:src="@{/images/if_spain_flag.png}" style="border: 0; float: left; margin-right: 15px"/>
+                            <span th:text="#{language.es}">Español</span>
+                        </a>
+                        <a class="dropdown-item" id="btnFrance" value="FR">
+                            <img th:src="@{/images/if_fr_flag.png}" style="border: 0; float: left; margin-right: 15px"/>
+                            <span th:text="#{language.fr}">Español</span>
+                        </a>
+                    </div>
+                </li>
+                <li sec:authorize="!isAuthenticated()" class="nav-item">
+                    <a class="nav-link" href="/signup">
+                        <i class='fas fa-user-alt' style='font-size:16px'></i>
+                        <span th:text="#{signup.message}"></span>
+                    </a>
+                </li>
+                <li sec:authorize="!isAuthenticated()" class="nav-item">
+                    <a class="nav-link" href="/login">
+                        <i class='fas fa-sign-in-alt' style='font-size:16px'></i>
+                        <span th:text="#{login.message}"></span>
+                    </a>
+                </li>
+                <li sec:authorize="isAuthenticated()" class="class-item">
+                    <a href="/logout" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span th:text="#{nav.logout}">Desconectar</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>

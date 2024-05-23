@@ -1,0 +1,24 @@
+<table class="table table-hover" id="postsTable">
+            <thead>
+            <tr>
+                <th th:text="#{posts.date}"></th>
+                <th th:text="#{posts.title}"></th>
+                <th th:text="#{posts.text}"></th>
+                <th th:text="#{posts.recommendations}"></th>
+                <th scope="col"></th>
+             </tr>
+            </thead>
+            <tbody>
+            <tr th:each="post : ${postsList}">
+                <td th:text="${post.getCreationDate()}"></td>
+                <td th:text="${post.getTitle()}"></td>
+                <td th:text="${post.getContent()}"></td>
+                <td th:text="${post.getRecommendations()}"></td>
+
+
+                <td th:if="${friendsView}">
+                    <a th:if="${not recommendedPosts.contains(post)}"th:href="${'/recommendation/' + post.id}" th:text="#{posts.recomendation}">Aceptar</a>
+                </td>
+            </tr>
+            </tbody>
+</table>

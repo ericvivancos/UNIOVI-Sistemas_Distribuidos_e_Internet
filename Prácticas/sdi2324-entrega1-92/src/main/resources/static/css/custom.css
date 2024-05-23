@@ -1,0 +1,42 @@
+/* Sticky footer styles-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #007bff;
+    text-align:center;
+    line-height:60px
+}
+/* Cambiar el color primario a un tono de azul más claro */
+:root {
+    --primary-color: #17a2b8; /* Color primario original */
+}
+.btn-primary, .btn-primary:hover,.page-item.active .page-link,.dropdown-item:active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.page-link,.page-link:hover{
+    color: var(--primary-color);
+}
+.btn-primary:focus, .btn-primary.focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+}
+.btn-primary.disabled, .btn-primary:disabled {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
+.show > .btn-primary.dropdown-toggle {
+    background-color: #17a2b8; /* Tono más oscuro para el estado activo */
+    border-color: #17a2b8; /* Tono más oscuro para el estado activo */
+}
+/* Sticky footer styles-------------------------------------------------- */

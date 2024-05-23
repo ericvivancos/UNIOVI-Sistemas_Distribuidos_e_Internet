@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head"></head>
+<body>
+
+<!-- Barra de Navegación superior -->
+<nav th:replace="fragments/nav"></nav>
+<div class="container mt-4" id="main-container">
+    <h2 th:text="#{post.edit}">Editar post</h2>
+    <!-- Detalles del post -->
+    <div class="card">
+        <div class="card-header" th:text="#{posts.title}">Título</div>
+        <div class="card-body">
+            <p class="card-text" th:text="${post.title}"></p>
+        </div>
+    </div>
+    <br>
+    <div class="card">
+        <div class="card-header" th:text="#{posts.text}">Contenido</div>
+        <div class="card-body">
+            <p class="card-text" th:text="${post.content}"></p>
+        </div>
+    </div>
+    <br>
+    <div class="card">
+        <div class="card-header" th:text="#{posts.date}">Fecha de Creación</div>
+        <div class="card-body">
+            <p class="card-text" th:text="${post.creationDate}"></p>
+        </div>
+    </div>
+
+    <!-- Formulario para editar el estado del post -->
+
+    <form class="form-horizontal" method="post" th:action="${'/post/edit/' + post.id}" th:object="${post}">
+
+
+        <div class="card mb-3">
+            <div class="card-header" th:text="#{posts.status}">Estado</div>
+            <div class="card-body">
+                <select th:field="*{status}" id="status" class="form-control" name="status">
+                    <option th:each="statusPost : ${postStatus}" th:value="${statusPost}" th:text="${statusPost}"></option>
+                </select>
+
+                <div class="alert alert-danger" th:if="${Error}">
+                    <span th:text="${Error}"></span>
+                </div>
+            </div>
+
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary mt-2" th:text="#{post.button.modify}">Modificar</button>
+            </div>
+        </div>
+    </form>
+</div>
+<footer th:replace="fragments/footer"></footer>
+
+</body>
+</html>

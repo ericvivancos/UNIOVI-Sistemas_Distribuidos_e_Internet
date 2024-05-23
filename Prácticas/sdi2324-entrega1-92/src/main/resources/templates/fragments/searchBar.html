@@ -1,0 +1,15 @@
+﻿<!-- Barra de búsqueda genérica -->
+<div th:fragment="searchBar(entity)">
+
+    <form th:action="@{|/${entity}/search|}" method="get" class="form-inline my-2 my-lg-0">
+        <input name="searchTextPost" type="text" class="form-control" size="50"
+               th:value="${#strings.isEmpty(session.searchTextPost) ? '' : session.searchTextPost}" id="searchTextPost"
+               th:placeholder="#{search.placeholder}" />
+
+
+        <!-- Agregar un campo oculto para el ID del amigo -->
+        <input type="hidden" name="friendId" th:value="${friendId}" />
+
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="searchButton" th:text="#{search.boton}">Buscar</button>
+    </form>
+</div>
