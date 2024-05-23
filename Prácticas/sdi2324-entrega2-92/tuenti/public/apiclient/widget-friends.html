@@ -1,0 +1,148 @@
+<div id="widget-friends" >
+    <h2>Mis Amigos</h2>
+    <button class="btn" onclick="loadFriends()" >Actualizar</button>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Email</th>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>Fecha de amistad</th>
+            <th>Último Mensaje</th>
+            <th>Mensajes no leídos</th> <!-- Nueva columna -->
+
+        </tr>
+        </thead>
+        <tbody id="friendsTableBody"></tbody>
+    </table>
+</div>
+<script>
+
+
+    /**
+     * Se cargan los amigos y se llama a la función que actualiza la tabla
+     */
+    function loadFriends() {
+        $.ajax({
+            url: URLbase + "/chats/getFriends",
+            type: "GET",
+            data: {},
+            dataType: 'json',
+            headers: {"token": token},
+            success: function (response) {
+                friends = response.friends;
+                updateFriendsTable(friends);
+                friends.forEach(friend => {
+                    getUnreadMessagesCount(getUserIdFromToken(token), friend._id);
+                });
+            },
+            error: function (error) {
+                console.error("Error al cargar amigos:", error);
+                $("#main-container").load("widget-login.html");
+            }
+        });
+    }
+
+    /**
+     * Se actualiza la tabla de amistades con la infromación de los amigos
+     * @param friends
+     */
+    function updateFriendsTable(friends) {
+        $("#friendsTableBody").empty();
+        friends.forEach(friend => {
+
+            $("#friendsTableBody").append(
+                `<tr id="${friend._id}">
+                    <td>${friend.email}</td>
+                    <td>${friend.name}</td>
+                    <td>${friend.surname}</td>
+                    <td>${friend.date}</td>
+                    <td><button id="chatButton-${friend.email}" onclick="openChat('${friend._id}')" >Conversar</button></td>
+                    <td id="unread-${friend._id}"></td> <!-- Aquí se mostrarán los mensajes no leídos -->
+
+                </tr>`
+            );
+        });
+    }
+    /**
+     * Se abre un chat si este ya existía y se llama a la función de inicialización
+     * o se crea un nuevo chat
+     * @param friendId
+     */
+        function openChat(friendId) {
+        let currentUserId = getUserIdFromToken(token);
+        $.ajax({
+            url: URLbase + "/chats/getChats",
+            type: "GET",
+            headers: { "token": token },
+            dataType: 'json',
+            success: function(chats) {
+                const allChats = [...chats.sender, ...chats.reciver];
+
+                const chatWithFriend = allChats.find(chat =>
+                    (chat.userId.toString() === currentUserId && chat.friendId.toString() === friendId) ||
+                    (chat.friendId.toString() === currentUserId && chat.userId.toString() === friendId)
+                );
+
+                if (chatWithFriend) {
+                    console.log("Chat con el amigo encontrado:", chatWithFriend);
+                    // Puedes cargar el widget de chat con esta información
+                    $("#main-container").load("widget-chat.html", function() {
+                        initializeChat(chatWithFriend); // Una vez cargado, inicializar el chat
+                    });
+                } else {
+                    console.log(chatWithFriend)
+                    createNewChat(friendId);
+                }
+            },
+            error: function(error) {
+                console.error("Error al obtener los chats:", error);
+                $("#main-container").prepend("<div class='alert alert-danger'>Error al obtener los chats.</div>");
+            }
+        });
+
+    }
+    function getUnreadMessagesCount(userID, friendID) {
+        console.log("llamara a la api para obtener mensajes no leidos");
+        $.ajax({
+            url: URLbase + '/chats/getUnreadMessages/' +userID+'/'+ friendID,
+            type: 'GET',
+            headers: { token: token },
+            success: function(response) {
+                console.log('Número de mensajes no leídos: ', response);
+                $("#unread-" + friendID).text(response); // Actualizar el número de mensajes no leídos
+            },
+            error: function(error) {
+                console.log('Error al obtener el número de mensajes no leídos', error);
+            }
+        });
+    }
+
+    /**
+     * Creación del nuevo chat
+     * @param friendId
+     */
+    function createNewChat(friendId) {
+        $.ajax({
+            url: URLbase + "/chats/createChat",
+            type: "POST",
+            headers: { "token": token },
+            data: { friendId: friendId },
+            success: function(response) {
+                console.log("Nuevo chat creado:", response);
+                // Cargar el widget de chat con el nuevo chat
+                $("#main-container").load("widget-chat.html", function() {
+                    initializeChat(response); // Iniciar el chat
+                });
+            },
+            error: function(error) {
+                if (error.status === 409) {
+                    console.warn("El chat ya existe.");
+                } else {
+                    console.error("Error al crear el chat:", error);
+                }
+            }
+        });
+    }
+    loadFriends();
+</script>

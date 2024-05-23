@@ -1,0 +1,43 @@
+{% extends "layout.twig" %}
+
+{% block title %}Perfil de {{ friend.name }} {% endblock %}
+
+{% block main_container %}
+    <h2>Perfil de {{ friend.name }} {{ friend.surname }}</h2>
+    <p>Email: {{ friend.email }}</p>
+
+    <h3>Publicaciones</h3>
+
+
+    <table id="tablePosts" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Fecha de Creación</th>
+            <th>Título</th>
+            <th>Texto</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for post in posts %}
+            <tr>
+                <td>{{ post.created_at | date("d-m-Y") }}</td>
+                <td>{{ post.title }}</td>
+                <td>{{ post.content | slice(0, 50) ~ "..." }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+    <!-- Paginación mostrar la actual y 2 anteriores y dos siguientes -->
+    <div class ="row text-center">
+        <ul class ="pagination">
+            {% for page in pages %}
+                <li class="page-item {% if page.number == currentPage %}active{% endif %}">
+                    <a class="page-link" href="{{ page.url }}">{{ page.number }}</a>
+                </li>
+            {% endfor %}
+
+        </ul>
+    </div>
+{% endblock %}

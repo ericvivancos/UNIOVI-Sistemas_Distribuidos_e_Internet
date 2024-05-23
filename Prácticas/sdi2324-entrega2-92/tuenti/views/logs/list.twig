@@ -1,0 +1,69 @@
+{% extends "layout.twig" %}
+{% block title %} Registro {% endblock %}
+
+{% block main_container %}
+    <h2>Logs</h2>
+    <div class="row d-flex ">
+        <div class="col ">
+            <form method="get" action="/log/list" class="input-group">
+                <select class="form-control" name="logType">
+                    <option value="" {% if selectedLogType == "" %}selected{% endif %}>Todos</option>
+                    <option value="PET" {% if selectedLogType == "PET" %}selected{% endif %}>PET</option> <!-- Logs de peticiones -->
+                    <option value="ALTA" {% if selectedLogType == "ALTA" %}selected{% endif %}>ALTA</option> <!-- Logs de altas de usuarios -->
+                    <option value="LOGIN" {% if selectedLogType == "LOGIN" %}selected{% endif %}>LOGIN</option> <!-- Logs de inicios de sesión -->
+                    <option value="LOGOUT" {% if selectedLogType == "LOGOUT" %}selected{% endif %}>LOGOUT</option> <!-- Logs de cierres de sesión -->
+                </select>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" id="logs" type="submit">Buscar</button>
+                    <button class="btn btn-danger" type="button" id="delete-logs-button">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="table-responsive overflow-hidden">
+        <table class="table table-hover" id="tableLogs">
+            <thead class="thead-dark">
+            <tr class="logs-list">
+                <th scope="col">#</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Método</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Autor</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for log in logList %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ log.date }}</td>
+                    <td>{{ log.action }}</td>
+                    <td>{{ log.type }}</td>
+                    <td>{{ log.url }}</td>
+                    <td>{{ log.user }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.getElementById("delete-logs-button").addEventListener("click", function() {
+            const selectedLogType = document.querySelector('select[name="logType"]').value;
+
+                // Enviar el tipo seleccionado para eliminar
+                const form = document.createElement("form");
+                form.method = "post";
+                form.action = "/log/delete";
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "logType";
+                input.value = selectedLogType;
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,92 @@
+<style>
+  .dropdown-menu .dropdown-item {
+    display: block;
+  }
+</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{% block title %} tuenti {% endblock %}</title>
+
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  {% block scripts %} {% endblock %}
+</head>
+<body>
+
+
+<!-- Barra de Navegación superior -->
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <img src="/images/tuenti.png" alt="logo" style="max-height: 50px; width: auto;"/>    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        {% if userRole == 'admin' %}
+        <li id="logs"><a href="/log/list">Logs</a></li>
+        {% endif %}
+        <li> <a id="clientAPI" href="/apiclient/client.html?w=login"> Cliente API </a></li>
+
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {% if session.user %}
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="friendDropDown" role="button" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-user-friends"></i>Gestión de Amitades
+            </a>
+            <div class="dropdown-menu" aria-labelledby="friendDropDown">
+              <a class="dropdown-item" href="/friendRequest/list" id="friendRequest">
+                <i class="fas fa-user-plus"></i>Ver solicitudes
+              </a>
+              <a class="dropdown-item" href="/friendship/list" id="friendsList">
+                <i class="fas fa-users"></i> Ver Amigos
+              </a>
+            </div>
+          </li>
+          <li><a id="createPost" href="/post/add">Crear Publicación</a></li>
+          <li><a id="friendList" href="/friendship/list">Mis amigos</a></li>
+          <li><a id="myPosts" href="/posts/my-posts">Mis Publicaciones</a></li>
+          <li><a href="/users/logout" id="logoutNavBar"><span class="glyphicon glyphicon-log-in"></span> Cerrar session</a></li>
+
+
+        {% else %}
+          <li><a href="/users/signup"  id="signupNavBar" ><span class="glyphicon glyphicon-user"></span> Registrate</a></li>
+          <li><a href="/users/login" id="loginNavBar"><span class="glyphicon glyphicon-log-in"></span> Identifícate</a></li>
+        {% endif %}
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <script>
+    let params = new URLSearchParams(location.search);
+    let message = params.get("message");
+    let messageType = params.get("messageType");
+    if (message !== null && message !== "") {
+      if (messageType === "") {
+        messageType = 'alert-info';
+      }
+      $(".container")
+              .append("<div class='alert " + messageType + "'>" + message + " </div>");
+    }
+  </script>
+  <!-- Contenido -->
+  {% block main_container %}
+    <!-- Posible contenido por defecto -->
+  {% endblock %}
+</div>
+
+</body>
+</html>

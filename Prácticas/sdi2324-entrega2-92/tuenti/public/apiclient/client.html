@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+    <title>Tuenti </title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script
+            src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- Barra de Navegación superior -->
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data
+                    target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <img src="/images/tuenti.png" alt="logo" style="max-width: 100px; max-height: 50px;">
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav" id="barra-menu">
+                <li><a onclick=widgetFriends()>Amigos</a></li>
+                <li><a onclick=widgetChats()>Mis chats</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right" id="barra-menu-derecha">
+                <!-- Opciones de menú aqui -->
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Contenido -->
+<div class="container" id="main-container"> <!--  id para identificar -->
+</div>
+<script>
+    let token;
+    let URLbase = "http://localhost:8081/api/v1.0";
+    let friends;
+    $("#main-container").load("widget-login.html");
+
+    /**
+     * Cargar el widget de los amigos y después de ello los amigos
+     */
+    function widgetFriends(){
+        $( "#main-container" ).load( "widget-friends.html", function () {
+            loadFriends();
+        })
+    }
+
+    /**
+     * Cargar el widget de las conversaciones y después de ello las conversaciones
+     */
+    function widgetChats(){
+        $( "#main-container" ).load( "widget-conversations.html", function () {
+            loadConversations();
+        })
+    }
+
+    /**
+     * Obtiene el ID de usuario a partir de un token
+     * @param token
+     * @returns {*|null}  El ID de usuario si se encuentra en el token, de lo contrario, null
+     */
+    function getUserIdFromToken(token) {
+
+        if (token) {
+            let base64Url = token.split('.')[1]; // La segunda parte es el cuerpo
+            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            let decodedData = JSON.parse(atob(base64));
+            return decodedData.id; // Suponiendo que el ID del usuario está en 'id'
+        }
+        return null;
+    }
+</script>
+</body>
+</html>

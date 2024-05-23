@@ -1,0 +1,102 @@
+{% extends "layout.twig" %}
+{% block title %} Listado de usuarios {% endblock %}
+{% block main_container %}
+    <h2>
+        <h2>
+            {% if userRole == 'admin' %}
+                Listado de usuarios del sistema
+            {% else %}
+                Listado de usuarios
+            {% endif %}
+        </h2>
+    </h2>
+
+
+<!-- Búsqueda -->
+    {% if userRole == 'user' %}
+        <div class="row">
+            <div id="custom-search-input ">
+                <form method="get" action="/listUsersSocialMedia">
+                    <div class="input-group col-xs-8 col-sm-6 col-md-4 col-lg-5 pull-right">
+                        <input id="search" type="text" class="search-query form-control"
+                               placeholder="Nombre, apellido o mail del usuario" name="search"/>
+                        <span class="input-group-btn">
+                            <button class="btn" type="submit" id="btn-search">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    {% include '../error.twig' %}
+    {% include '../succes.twig' %}
+
+    <div class="row">
+        <form action="/deleteusers" method="get">
+        <!-- Inicio de la tabla de usuarios -->
+        <table class="table table-striped" >
+            <thead>
+
+                {% if userRole == 'admin' %}
+                    <th>Eliminar</th>
+                {% endif %}
+                <th>Email</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Acciones</th>
+            </thead>
+            <tbody id="userList">
+            {% for user in users %}
+               <label>
+                    <tr>
+                        {% if userRole == 'admin' %}
+                            <td>
+                                <input type="checkbox" name="ids" id="{{'ids_' + user._id}}" value="{{ user._id }}">
+                            </td>
+                        {% endif %}
+                        <td class="email">
+                            {{ user.email }}
+                        </td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.surname }}</td>
+                        <td>
+                            {% if userRole == 'admin' %}
+                                <a href="/users/edit/{{ user._id }}" class="btn btn-primary">Modificar</a> <!-- Botón de modificar -->
+                            {% endif %}
+                        <td>
+                            {% if userRole != 'admin' %}
+                            {% if user.friend %}
+                                <span>(Amigo)</span>
+                            {% else %}
+                                <a href="/invite/send/{{ user._id }}" class="btn btn-primary">Agregar amigo</a> <!-- Botón de agregar amistad -->
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                        </td>
+                    </tr>
+               </label>
+            {% endfor %}
+            </tbody>
+        </table>
+            {% if userRole == 'admin' %}
+                <button id="btn-delete" type="submit">Borrar seleccionados</button>
+            {% endif %}
+        </form>
+        <!-- Fin de la tabla de usuarios -->
+    </div>
+
+    <!-- Paginación mostrar la actual y 2 anteriores y dos siguientes -->
+    <div class ="row text-center">
+        <ul class ="pagination">
+            {% for page in pages %}
+                <li class="page-item {% if page.number == currentPage %}active{% endif %}">
+                    <a class="page-link" href="{{ page.url }}">{{ page.number }}</a>
+                </li>
+            {% endfor %}
+
+        </ul>
+    </div>
+{% endblock %}

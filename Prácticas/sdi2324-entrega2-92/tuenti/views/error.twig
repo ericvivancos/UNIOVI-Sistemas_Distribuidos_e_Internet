@@ -1,0 +1,7 @@
+{% if flash.error %}
+  <ul>
+    {% for error in flash.error %}
+      <li class="error" id="errorList">{{ error }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

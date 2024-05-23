@@ -1,0 +1,186 @@
+<div id="chat-widget">
+    <h2>Chat</h2>
+    <div id="chat-window" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+        <div id="chatMessageList" class="chat-message-list">
+            <!-- Los mensajes se agregarán aquí -->
+        </div>
+    </div>
+    <form id="chat-form" onsubmit="return sendMessage()">
+        <input type="text" id="chat-input" placeholder="Escribe tu mensaje..." required>
+        <button type="submit">Enviar</button>
+    </form>
+</div>
+<style>
+    .chat-message {
+        display: flex;
+        flex-direction: column;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+
+    .message-from-friend {
+        align-self: flex-start; /* Alinear a la izquierda */
+        background-color: #e6e6e6; /* Color para mensajes del amigo */
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    .message-from-user {
+        text-align-last: end;
+        background-color: #d1e7dd; /* Color para tus mensajes */
+        border-radius: 5px;
+        padding: 10px;
+    }
+</style>
+<script>
+    let socket;
+    let currenFriendId;
+    let currentUserId = getUserIdFromToken(token);
+
+    /**
+     * Inicializa el chat con los datos proporcionados.
+     * @param chat
+     */
+    function initializeChat(chat){
+
+        console.log('inicializar datos chat , usuario en token', chat, currentUserId);
+        console.log('chat datos', chat.userId, chat.friendId, chat._id, chat.messages);
+        markMessagesAsRead(chat);
+        // renderChatMessages(chat.messages);
+        //ojo el id puede ser amigo o usuario comprobarlo
+        if(chat.userId.toString() === currentUserId){
+            currenFriendId = chat.friendId;
+        } else {
+            currenFriendId = chat.userId;
+        }
+        if(socket){
+            socket.disconnect();
+        }
+        console.log('los amigos tras el if ', currenFriendId, currentUserId);
+
+        socket = io.connect("http://localhost:8081", {
+            query: {
+                token: token,
+            }
+        });
+
+        // Nos unimos a la sala de chat
+        console.log('unirme a la sala de chat', chat.userId, currenFriendId);
+        socket.emit("joinRoom", {user1Id: currentUserId, user2Id: currenFriendId} )
+
+        // Escuchamos mensajes entrantes
+        socket.on("chat message", function (msg) {
+            chat.messages.push(msg);
+            //socket.emit('messageReceived', { chatId: chat._id, messageId: msg._id });
+
+            markMessagesAsRead(chat);//renderChatMessages(chat.messages)
+        });
+        // Escuchar nuevos mensajes
+        socket.on("chatUpdated", () => {
+            console.log('chat actualizado');
+            loadChatMessages(chat); // Recargar mensajes
+        });
+
+
+
+        console.log('id incializar  los msj', currenFriendId, currentUserId);
+    }
+
+    /**
+     * Envia un mensaje al servidor.
+     * @returns {boolean}
+     */
+    function sendMessage() {
+        let message = $("#chat-input").val().trim();
+        if (message) {
+            console.log('enviar mensaje al servidor', message, currentUserId, currenFriendId)
+            socket.emit("chat-message", {
+                user1Id: currentUserId,
+                user2Id: currenFriendId,
+                message: message
+            });
+
+
+            $("#chat-input").val(""); // Limpiar el campo de texto
+        }
+        return false; // Evitar recarga del formulario
+    }
+    /**
+     * Carga los mensajes de un chat específico.
+     * @param chat
+     */
+    function loadChatMessages(chat) {
+        console.log('cargar mensajes', chat);
+        $.ajax({
+            url: `${URLbase}/chats/getMessages/${chat._id}`,
+            type: "GET",
+            headers: { token: token }, // Enviar el token para autenticación
+            success: function (messages) {
+                chat.messages= messages;//actualizar mensajes
+                console.log('mensajes cargados primero se ponen como leidos ', messages);
+                markMessagesAsRead(chat);
+                //renderChatMessages(chat.messages);
+            },
+            error: function (error) {
+                console.error("Error al cargar los mensajes:", error);
+            },
+        });
+
+    }
+
+    /**
+     * Renderiza los mensajes de chat en la interfaz de usuario.
+     * @param messages
+     */
+    function renderChatMessages(messages) {
+        console.log('render mensajes', messages,'usuario amigo ', currenFriendId, currentUserId);
+        $("#chatMessageList").empty(); // Vaciar el contenedor de mensajes
+
+        messages.forEach(message => {
+            const timestamp = new Date(message.timestamp).toLocaleString(); // Formato de fecha y hora
+            const content = message.content;
+
+            const isUserMessage = message.senderId === currentUserId;
+
+            const messageClass = isUserMessage ? 'message-from-user' : 'message-from-friend';
+            const readIndicator = message.read && isUserMessage ? '<span class="chat-read-indicator">Leído</span>' : '';
+
+            const messageHtml = `
+            <div class="chat-message ${messageClass}">
+                <span class="chat-timestamp">${timestamp}</span>
+                <span class="chat-content">${content}</span>
+                                ${readIndicator}
+
+            </div>
+        `;
+
+            $("#chatMessageList").append(messageHtml); // Agregar el mensaje al contenedor
+        });
+        console.log('id tras actualizar los msj', currenFriendId, currentUserId);
+    }
+
+
+    //marca como leido cada uno de los mensajes
+    // Marca como leído cada uno de los mensajes enviados por la otra persona
+    async function markMessagesAsRead(chat) {
+        console.log('marcar como leido chat',chat);
+        const unreadMessages = chat.messages.filter(message => message.senderId.toString() !== currentUserId && !message.read );
+
+        for (let message of unreadMessages) {
+            try {
+                await $.ajax({
+                    url: `${URLbase}/chats/markAsRead/${chat._id}/${message._id}`,
+                    type: 'PUT',
+                    headers: { token: token },
+                });
+
+                message.read = true;
+                console.log('emitir envento de mensaje recibido que actauliza a leido lo necesairo', 'chatId: ', chat._id, 'messageId: ', message._id);
+                //socket.emit('chatUpdated');
+
+            } catch (error) {
+                console.error('Error al marcar el mensaje como leído:', error);
+            }
+        }
+        renderChatMessages(chat.messages);
+    }</script>

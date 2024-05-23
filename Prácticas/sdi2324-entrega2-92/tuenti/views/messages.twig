@@ -1,0 +1,15 @@
+{% if flash.success %}
+    <ul>
+        {% for msg in flash.success %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if flash.error %}
+    <ul>
+        {% for msg in flash.error %}
+            <li>{{ msg }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}

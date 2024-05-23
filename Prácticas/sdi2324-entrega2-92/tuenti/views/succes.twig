@@ -1,0 +1,8 @@
+{%
+  if flash.success %}
+  <ul>
+    {% for suc in flash.success %}
+      <li class="success" id="successList">{{ suc }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

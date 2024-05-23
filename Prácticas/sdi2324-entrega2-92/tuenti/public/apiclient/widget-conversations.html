@@ -1,0 +1,141 @@
+<div id="widget-conversations">
+    <h2>Mis Conversaciones</h2>
+    <button class="btn" onclick="loadConversations()">Actualizar</button>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Amigo</th>
+            <th>Último Mensaje</th>
+            <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody id="conversationList">
+        <!-- Las conversaciones se llenarán aquí -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    /**
+     * Carga las conversaciones del usuario autenticado.
+     */
+    function loadConversations() {
+        $.ajax({
+            url: `${URLbase}/chats/getChats`, // EndPoint para obtener todas las conversaciones del usuario autenticado
+            type: "GET",
+            headers: { token: token }, // Añadir token para autenticación
+            success: function (response) {
+                // Unir las listas 'sender' y 'reciver' en una única lista 'allChats'
+                const allChats = [...response.sender, ...response.reciver];
+                renderConversations(allChats); // Renderizar las conversaciones en el DOM
+            },
+            error: function (error) {
+                console.error("Error al obtener las conversaciones:", error);
+            },
+        });
+    }
+    /**
+     * Obtiene los detalles del amigo por su ID.
+     * @param friendId
+     * @param callback
+     */
+    function getFriendDetails(friendId, callback) {
+        $.ajax({
+            url: `${URLbase}/users/getUserById/${friendId}`, // Endpoint para obtener el usuario por ID
+            type: "GET",
+            headers: { token: token }, // Asegurarse de incluir el token para autenticación
+            success: function (response) {
+                callback(response); // Devolver los datos del usuario a través del callback
+            },
+            error: function (error) {
+                console.error("Error al obtener detalles del amigo:", error);
+            },
+        });
+    }
+
+    /**
+     * Renderiza las conversaciones en la interfaz de usuario.
+     * @param conversations
+     */
+    function renderConversations(conversations) {
+        $("#conversationList").empty(); // Vaciar el contenido antes de agregar nuevas conversaciones
+    console.log(conversations);
+        conversations.forEach(conversation => {
+            const friendId = conversation.userId === getUserIdFromToken(token) ? conversation.friendId : conversation.userId;
+            getFriendDetails(friendId, friend => { // Obtener detalles del amigo
+                const lastMessage = conversation.messages[conversation.messages.length - 1];
+                const lastMessageText = lastMessage ? `${new Date(lastMessage.timestamp).toLocaleString()} - ${lastMessage.content}` : "Sin mensajes";
+
+                const conversationHtml = `
+            <tr>
+                <td>${friend.name} ${friend.surname}</td> <!-- Mostrar nombre y apellido del amigo -->
+                <td>${lastMessageText}</td>
+                <td>
+                    <button onclick="deleteConversation('${conversation._id}')">Eliminar</button>
+                    <button onclick="openChat('${conversation._id}')">Reanudar</button>
+                </td>
+            </tr>
+            `;
+                $("#conversationList").append(conversationHtml);
+            });
+        });
+    }
+
+    /**
+     * Abre el chat correspondiente a una conversación.
+     * @param conversationId
+     */
+    function openChat(conversationId) {
+        $.ajax({
+            url: URLbase + "/chats/getChats",
+            type: "GET",
+            headers: { "token": token },
+            dataType: 'json',
+            success: function(response) {
+
+                const allChats = [...response.sender, ...response.reciver];
+
+
+                const chatWithFriend = allChats.find(chat =>
+                    (chat._id === conversationId)
+                );
+
+                if (chatWithFriend) {
+                    console.log("Chat con el amigo encontrado:", chatWithFriend);
+                    // Puedes cargar el widget de chat con esta información
+                    $("#main-container").load("widget-chat.html", function() {
+                        initializeChat(chatWithFriend); // Una vez cargado, inicializar el chat
+                    });
+                } else {
+                    console.error("No se encontró el chat con el amigo.");
+                }
+            },
+            error: function(error) {
+                console.error("Error al obtener los chats:", error);
+                $("#main-container").prepend("<div class='alert alert-danger'>Error al obtener los chats.</div>");
+            }
+        });
+    }
+
+    /**
+     * Elimina una conversación.
+     * @param conversationId
+     */
+    function deleteConversation(conversationId) {
+        $.ajax({
+            url: `/api/v1.0/chats/deleteChat/${conversationId}`,
+            type: 'DELETE',
+            headers: { token: token },
+            success: function () {
+                $("#main-container").prepend("<div class='alert alert-success'>Se ha eliminado el chat correctamente.</div>");
+                loadConversations(); // Actualizar la lista de conversaciones
+            },
+            error: function (error) {
+                console.error("Error al eliminar la conversación:", error);
+                $("#main-container").prepend("<div class='alert alert-danger'>Hubo un problema al eliminar la conversación.</div>");
+            }
+        });
+    }
+
+</script>
